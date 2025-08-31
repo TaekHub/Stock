@@ -24,6 +24,9 @@ NEWSAPI_KEY = os.getenv("NEWSAPI_KEY")
 st.set_page_config(page_title="주식 투자 통합 분석 플랫폼", layout="wide")
 st.title('📊 주식 투자 통합 분석 플랫폼')
 
+# 안내문 공지 (단일 경고문 유지)
+st.warning("⚠️ **중요 안내**: 투자의 최종 결정과 책임은 전적으로 투자자 본인에게 있습니다. 이 플랫폼은 참고 자료로만 활용하시기 바랍니다.", icon="⚠️")
+
 # 세션 상태 초기화
 if 'screen' not in st.session_state:
     st.session_state['screen'] = 'initial'
@@ -127,7 +130,7 @@ def fetch_naver_news(query):
         return news_items
     except Exception as e:
         st.error(f"네이버 뉴스 데이터를 가져오는 중 오류 발생: {str(e)}")
-        st.info("네이버 뉴스 API 키가 올바른지 확인해주세요. 네이버 개발자 센[](https://developers.naver.com/)에서 클라이언트 ID와 시크릿을 발급받아 사용하세요.")
+        st.info("네이버 뉴스 API 키가 올바른지 확인해주세요. 네이버 개발자 센터에서 클라이언트 ID와 시크릿을 발급받아 사용하세요.")
         return []
 
 # NewsAPI로 해외 주식 뉴스 가져오기
@@ -161,7 +164,7 @@ def fetch_newsapi(ticker):
         return news_items
     except Exception as e:
         st.error(f"NewsAPI 데이터를 가져오는 중 오류 발생: {str(e)}")
-        st.info("News API 키가 올바른지 확인해주세요. 문제가 지속되면 News API[](https://newsapi.org/)에서 새로운 API 키를 발급받아 사용하세요.")
+        st.info("News API 키가 올바른지 확인해주세요. 문제가 지속되면 News API에서 새로운 API 키를 발급받아 사용하세요.")
         return []
 
 # 뉴스 데이터 가져오기 및 감정 분석 함수
@@ -473,11 +476,66 @@ def render_stock_analysis_screen():
                     "뉴스 분석"
                 ])
 
+                # 수정된 부분: 주가 그래프 탭
                 with tab1:
                     st.subheader('📈 주가 그래프')
+                    
+                    # 최신 종가 및 날짜 가져오기
+                    latest_price = df['Close'].iloc[-1]
+                    latest_date = df.index[-1].strftime('%Y-%m-%d')
+                    
+                    # 최신 종가를 차트 위에 크게 표시
+                    st.markdown(
+                        f"<h2 style='color: {price_color}; text-align: center; font-weight: bold;'>"
+                        f"${latest_price:,.2f}</h2>",
+                        unsafe_allow_html=True
+                    )
+                    
+                    # 주가 차트 생성
                     fig_price = go.Figure()
-                    fig_price.add_trace(go.Scatter(x=df.index, y=df['Close'], mode='lines', name='Close', line=dict(color=price_color)))
-                    fig_price.update_layout(title=f"{ticker} 주가", xaxis_title="Date", yaxis_title="Price", height=graph_height)
+                    fig_price.add_trace(go.Scatter(
+                        x=df.index, 
+                        y=df['Close'], 
+                        mode='lines', 
+                        name='종가', 
+                        line=dict(color=price_color, width=2)
+                    ))
+                    
+                    # 차트에 최신 종가 주석 추가
+                    fig_price.add_annotation(
+                        x=df.index[-1],
+                        y=latest_price,
+                        text=f"₩{latest_price:,.2f}",
+                        showarrow=True,
+                        arrowhead=2,
+                        ax=20,
+                        ay=-30,
+                        font=dict(size=14, color=price_color),
+                        bgcolor="white",
+                        bordercolor=price_color,
+                        borderwidth=1
+                    )
+                    
+                    # 차트 레이아웃 업데이트 (제목 강조)
+                    fig_price.update_layout(
+                        title=dict(
+                            text=f"{ticker} ( {latest_date} )",
+                            font=dict(size=20, color=price_color),
+                            x=0.5,
+                            xanchor="center"
+                        ),
+                        xaxis_title="날짜",
+                        yaxis_title="가격",
+                        height=graph_height,
+                        hovermode="x unified",
+                        showlegend=True
+                    )
+                    
+                    # 가독성을 위한 그리드선 추가
+                    fig_price.update_xaxes(showgrid=True, gridcolor='lightgray')
+                    fig_price.update_yaxes(showgrid=True, gridcolor='lightgray')
+                    
+                    # 차트 표시
                     st.plotly_chart(fig_price, use_container_width=True)
 
                 with tab2:
