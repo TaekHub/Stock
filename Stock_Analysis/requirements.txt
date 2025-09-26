@@ -1,18 +1,1 @@
-
-streamlit
-pandas
-yfinance
-matplotlib
-seaborn
-ta
-streamlit
-pandas
-yfinance
-pykrx
-ta-lib
-plotly
-numpy
-requests
-newsapi-python
-textblob
-dotenv
+streamlit pandas yfinance matplotlib seaborn pykrx==1.0.51 setuptools>=60.0.0 plotly numpy requests newsapi-python textblob python-dotenv
