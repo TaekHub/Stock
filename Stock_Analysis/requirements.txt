@@ -16,3 +16,4 @@ requests
 newsapi-python
 textblob
 dotenv
+pkg_resources
