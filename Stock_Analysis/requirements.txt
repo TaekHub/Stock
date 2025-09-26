@@ -1,3 +1,4 @@
+matplotlib
 streamlit
 pandas
 yfinance
@@ -8,5 +9,4 @@ requests
 newsapi-python
 textblob
 python-dotenv
-matplotlib      # ★ 추가
 git+https://github.com/sharebook-kr/pykrx.git
