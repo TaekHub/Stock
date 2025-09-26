@@ -1,14 +1,12 @@
 streamlit
 pandas
 yfinance
-matplotlib
-seaborn
-ta
-git+https://github.com/sharebook-kr/pykrx.git
-TA-Lib
+talib
 plotly
 numpy
 requests
 newsapi-python
 textblob
-python-dotenv==1.0.1
+python-dotenv
+matplotlib      # ★ 추가
+git+https://github.com/sharebook-kr/pykrx.git
