@@ -2,7 +2,10 @@ import streamlit as st
 import pandas as pd
 import yfinance as yf
 from pykrx import stock
-import talib
+from ta.momentum import RSIIndicator, StochasticOscillator
+from ta.trend import MACD, CCIIndicator, ADXIndicator, SMAIndicator, EMAIndicator
+from ta.volume import MFIIndicator, OBVIndicator
+from ta.volatility import BollingerBands, AverageTrueRange
 import plotly.graph_objs as go
 import numpy as np
 from datetime import datetime, timedelta
@@ -391,12 +394,12 @@ def render_stock_analysis_screen():
                 if len(df) < 14:
                     raise ValueError(f"Not enough data points: {len(df)}, need at least 14")
 
-                close = df['Close'].to_numpy().astype(np.float64)
-                high = df['High'].to_numpy().astype(np.float64)
-                low = df['Low'].to_numpy().astype(np.float64)
-                volume = df['Volume'].to_numpy().astype(np.float64)
+                close = df['Close']
+                high = df['High']
+                low = df['Low']
+                volume = df['Volume']
 
-                if np.any(np.isnan(close)) or np.any(np.isnan(high)) or np.any(np.isnan(low)) or np.any(np.isnan(volume)):
+                if close.isna().any() or high.isna().any() or low.isna().any() or volume.isna().any():
                     raise ValueError("Input arrays contain NaN values")
 
                 st.sidebar.header("그래프 스타일 설정")
@@ -404,17 +407,26 @@ def render_stock_analysis_screen():
                 price_color = st.sidebar.color_picker("주가 선 색상", "#1f77b4")
 
                 sma_period = st.sidebar.slider("SMA 기간", 5, 50, 20)
-                df['RSI'] = talib.RSI(close, timeperiod=14)
-                df['MACD'], df['MACD_Signal'], df['MACD_Hist'] = talib.MACD(close, fastperiod=12, slowperiod=26, signalperiod=9)
-                df['SlowK'], df['SlowD'] = talib.STOCH(high, low, close, fastk_period=14, slowk_period=3, slowd_period=3)
-                df['CCI'] = talib.CCI(high, low, close, timeperiod=14)
-                df['MFI'] = talib.MFI(high, low, close, volume, timeperiod=14)
-                df['ADX'] = talib.ADX(high, low, close, timeperiod=14)
-                df['SMA'] = talib.SMA(close, timeperiod=sma_period)
-                df['EMA20'] = talib.EMA(close, timeperiod=20)
-                df['UpperBand'], df['MiddleBand'], df['LowerBand'] = talib.BBANDS(close, timeperiod=20)
-                df['OBV'] = talib.OBV(close, volume)
-                df['ATR'] = talib.ATR(high, low, close, timeperiod=14)
+                # 기술적 지표 계산 (ta 패키지 사용)
+                df['RSI'] = RSIIndicator(close, window=14).rsi()
+                macd_indicator = MACD(close, window_fast=12, window_slow=26, window_sign=9)
+                df['MACD'] = macd_indicator.macd()
+                df['MACD_Signal'] = macd_indicator.macd_signal()
+                df['MACD_Hist'] = macd_indicator.macd_diff()
+                stoch_indicator = StochasticOscillator(high=high, low=low, close=close, window=14, smooth_window=3)
+                df['SlowK'] = stoch_indicator.stoch()
+                df['SlowD'] = stoch_indicator.stoch_signal()
+                df['CCI'] = CCIIndicator(high=high, low=low, close=close, window=14).cci()
+                df['MFI'] = MFIIndicator(high=high, low=low, close=close, volume=volume, window=14).money_flow_index()
+                df['ADX'] = ADXIndicator(high=high, low=low, close=close, window=14).adx()
+                df['SMA'] = SMAIndicator(close, window=sma_period).sma_indicator()
+                df['EMA20'] = EMAIndicator(close, window=20).ema_indicator()
+                bb_indicator = BollingerBands(close, window=20)
+                df['UpperBand'] = bb_indicator.bollinger_hband()
+                df['MiddleBand'] = bb_indicator.bollinger_mavg()
+                df['LowerBand'] = bb_indicator.bollinger_lband()
+                df['OBV'] = OBVIndicator(close, volume).obv()
+                df['ATR'] = AverageTrueRange(high=high, low=low, close=close, window=14).average_true_range()
 
                 df.dropna(inplace=True)
                 if len(df) < 1:
@@ -476,7 +488,7 @@ def render_stock_analysis_screen():
                     "뉴스 분석"
                 ])
 
-                # 수정된 부분: 주가 그래프 탭
+                # 주가 그래프 탭
                 with tab1:
                     st.subheader('📈 주가 그래프')
                     
