@@ -9,4 +9,3 @@ requests
 newsapi-python
 textblob
 python-dotenv
-git+https://github.com/sharebook-kr/pykrx.git
