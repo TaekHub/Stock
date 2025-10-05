@@ -1,11 +1,12 @@
-matplotlib
-streamlit
-pandas
-yfinance
-talib
-plotly
-numpy
-requests
-newsapi-python
-textblob
-python-dotenv
+matplotlib==3.9.2
+streamlit==1.39.0
+pandas==2.2.3
+yfinance==0.2.44
+TA-Lib==0.4.28  # talib 대신 TA-Lib (PyPI 버전)
+plotly==5.24.1
+numpy==2.1.2
+requests==2.32.3
+newsapi-python==0.2.7
+textblob==0.18.0.post0
+python-dotenv==1.0.1
+pykrx==1.0.51
