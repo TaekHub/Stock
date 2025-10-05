@@ -9,3 +9,4 @@ requests
 newsapi-python
 textblob
 python-dotenv
+setuptools
