@@ -487,7 +487,7 @@ def render_stock_analysis_screen():
                     # 최신 종가를 차트 위에 크게 표시
                     st.markdown(
                         f"<h2 style='color: {price_color}; text-align: center; font-weight: bold;'>"
-                        f"${latest_price:,.2f}</h2>",
+                        f"{latest_price:,.2f}</h2>",
                         unsafe_allow_html=True
                     )
                     
