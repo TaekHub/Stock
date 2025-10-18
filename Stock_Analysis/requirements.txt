@@ -2,7 +2,7 @@ matplotlib
 streamlit
 pandas
 yfinance
-talib
+Ta-Lib
 plotly
 numpy
 requests
